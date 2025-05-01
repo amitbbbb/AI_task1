@@ -2,7 +2,7 @@ import ex1_check
 import search
 import utils
 
-id = ["No numbers - I'm special!"]
+id = ["211548045"]
 
 """ Rules """
 BLANK = 0
@@ -10,10 +10,11 @@ WALL = 99
 FLOOR = 98
 AGENT = 1
 GOAL = 2
-# LOCKED_DOORS = [40,...,49]
-# PRESSED_PLATES = [30,...,39]
-# PRESSURE_PLATES = [20,...,29]
-# KEY_BLOCKS = [10,...,19]
+LOCKED_DOORS = list(range(40, 50))
+PRESSED_PLATES = list(range(30, 40))
+PRESSURE_PLATES = list(range(20, 30))
+KEY_BLOCKS = list(range(10, 20))
+
 
 
 class PressurePlateProblem(search.Problem):
