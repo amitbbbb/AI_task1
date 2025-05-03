@@ -15,6 +15,14 @@ LOCKED_DOORS = list(range(40, 50))
 PRESSED_PLATES = list(range(30, 40))
 PRESSURE_PLATES = list(range(20, 30))
 KEY_BLOCKS = list(range(10, 20))
+directions = {
+    "U": (-1, 0),
+    "D": (1, 0),
+    "L": (0, -1),
+    "R": (0, 1)
+}
+
+""" This class implements a pressure plate problem """
 
 
 
@@ -34,7 +42,12 @@ class PressurePlateProblem(search.Problem):
 
     def successor(self, state):
         """ Generates the successor states returns [(action, achieved_states, ...)]"""
-        utils.raiseNotDefined()
+        successors = []
+        for direction in directions.items():
+            is_valid, new_state = self.make_move(state, direction[0])
+            if is_valid:
+                successors.append((direction[0], new_state))
+        return successors
 
     def goal_test(self, state):
         """ given a state, checks if this is the goal state, compares to the created goal state returns True/False"""
@@ -49,7 +62,54 @@ class PressurePlateProblem(search.Problem):
         # Manhattan distance heuristic
         return abs(agent[0] - goal[0]) + abs(agent[1] - goal[1])
 
-
+    def make_move(self, state, action):
+        """ given a state and an action, returns the new state"""
+        is_valid = False
+        map, old_agent = state
+        new_map = [list(row) for row in map]
+        dx, dy = directions[action]
+        new_agent_pos = (old_agent[0] + dx, old_agent[1] + dy)
+        new_cell_val = new_map[new_agent_pos[0]][new_agent_pos[1]]
+        if new_cell_val in LOCKED_DOORS or new_cell_val == WALL or new_cell_val in PRESSURE_PLATES or new_cell_val in PRESSED_PLATES:
+            return is_valid, state
+        if new_cell_val == FLOOR:
+            new_map[old_agent[0]][old_agent[1]] = FLOOR
+            new_map[new_agent_pos[0]][new_agent_pos[1]] = AGENT
+            is_valid = True
+        elif new_cell_val == GOAL:
+            new_map[old_agent[0]][old_agent[1]] = FLOOR
+            new_map[new_agent_pos[0]][new_agent_pos[1]] = AGENT_ON_GOAL
+            is_valid = True
+        elif new_cell_val in KEY_BLOCKS:
+            second_cell_pos = (new_agent_pos[0] + dx, new_agent_pos[1] + dy)
+            second_cell_val = new_map[second_cell_pos[0]][second_cell_pos[1]]
+            if second_cell_val == FLOOR:
+                new_map[old_agent[0]][old_agent[1]] = FLOOR
+                new_map[new_agent_pos[0]][new_agent_pos[1]] = AGENT
+                new_map[second_cell_pos[0]][second_cell_pos[1]] = new_cell_val
+                is_valid = True
+            elif second_cell_val in PRESSURE_PLATES and same_type(new_cell_val, second_cell_val):
+                new_map[old_agent[0]][old_agent[1]] = FLOOR
+                new_map[new_agent_pos[0]][new_agent_pos[1]] = AGENT
+                new_map[second_cell_pos[0]][second_cell_pos[1]] = second_cell_val + 10
+                # open door if needed
+                boolean is_pressure_plate_exist = False
+                for i in range(len(new_map)):
+                    for j in range(len(new_map[i])):
+                        if new_map[i][j] in PRESSURE_PLATES and new_map[i][j] == second_cell_val:
+                            is_pressure_plate_exist = True
+                            break
+                if is_pressure_plate_exist:
+                    for i in range(len(new_map)):
+                        for j in range(len(new_map[i])):
+                            if new_map[i][j] == second_cell_val + 20:
+                                new_map[i][j] = FLOOR
+                is_valid = True
+        return is_valid, (new_map, new_agent_pos)
+            
+    def same_type(self, cell1_val, cell2_val):
+        """ given two cell values, checks if they are the same type"""
+        return cell1_val % 10 == cell2_val % 10
 
     def find_goal(self, map):
         """ given a map, return it's goal position"""
