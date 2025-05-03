@@ -36,7 +36,8 @@ class PressurePlateProblem(search.Problem):
         goal = self.find_goal(initial)
         self.goal = goal
         agent = self.find_agent(initial)
-        state = (initial, agent)
+        g = 0
+        state = (initial, agent, g)
 
         """ Constructor only needs the initial state.
         Don't forget to set the goal or implement the goal test"""
@@ -67,13 +68,14 @@ class PressurePlateProblem(search.Problem):
         and returns a goal distance estimate"""
         agent = node.state[1]
         goal = self.goal
+        g = node.state[2]
         # Manhattan distance heuristic
-        return 3 * abs(agent[0] - goal[0]) + abs(agent[1] - goal[1]) + node.path_cost
+        return 3 * abs(agent[0] - goal[0]) + abs(agent[1] - goal[1]) + g
 
     def make_move(self, state, action):
         """ given a state and an action, returns the new state"""
         is_valid = False
-        map, old_agent = state
+        map, old_agent, g = state
         # print(f"Agent is at: {old_agent}")
         new_map = [list(row) for row in map]
         dx, dy = directions[action]
@@ -115,7 +117,7 @@ class PressurePlateProblem(search.Problem):
                                 new_map[i][j] = FLOOR
                 is_valid = True
         new_map = tuple(tuple(row) for row in new_map)
-        return is_valid, (new_map, new_agent_pos)
+        return is_valid, (new_map, new_agent_pos, g + 1)
             
     def same_type(self, cell1_val, cell2_val):
         """ given two cell values, checks if they are the same type"""
