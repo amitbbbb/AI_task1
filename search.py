@@ -139,14 +139,20 @@ def graph_search(problem, fringe):
     closed = {}
     expanded = 0
     fringe.append(Node(problem.initial))
+    
     while fringe:
         node = fringe.pop()
+    
         if problem.goal_test(node.state):
+            print("Goal reached!")
             return node, expanded
+        
         if node.state not in closed:
             closed[node.state] = True
             fringe.extend(node.expand(problem))
             expanded += 1
+
+    print("No solution found.")
     return None
 
 

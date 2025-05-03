@@ -55,8 +55,7 @@ class PressurePlateProblem(search.Problem):
 
     def goal_test(self, state):
         """ given a state, checks if this is the goal state, compares to the created goal state returns True/False"""
-        
-        return self.map[self.goal[0]][self.goal[1]] == AGENT_ON_GOAL
+        return state[0][self.goal[0]][self.goal[1]] == AGENT_ON_GOAL
             
 
     def h(self, node):
@@ -111,6 +110,7 @@ class PressurePlateProblem(search.Problem):
                             if new_map[i][j] == second_cell_val + 20:
                                 new_map[i][j] = FLOOR
                 is_valid = True
+        new_map = tuple(tuple(row) for row in new_map)
         return is_valid, (new_map, new_agent_pos)
             
     def same_type(self, cell1_val, cell2_val):
