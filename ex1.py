@@ -31,26 +31,31 @@ class PressurePlateProblem(search.Problem):
 
     def __init__(self, initial):
 
+        
         self.map = initial
-        self.goal = self.find_goal(initial)
+        goal = self.find_goal(initial)
+        self.goal = goal
         agent = self.find_agent(initial)
         state = (initial, agent)
 
         """ Constructor only needs the initial state.
         Don't forget to set the goal or implement the goal test"""
-        search.Problem.__init__(self, state)
+        search.Problem.__init__(self, state, goal)
 
     def successor(self, state):
         """ Generates the successor states returns [(action, achieved_states, ...)]"""
+        
+        # print("successor")
         successors = []
-        for direction in directions.items():
-            is_valid, new_state = self.make_move(state, direction[0])
+        for direction, delta in directions.items():
+            is_valid, new_state = self.make_move(state, direction)
             if is_valid:
-                successors.append((direction[0], new_state))
+                successors.append((direction, new_state))
         return successors
 
     def goal_test(self, state):
         """ given a state, checks if this is the goal state, compares to the created goal state returns True/False"""
+        
         return self.map[self.goal[0]][self.goal[1]] == AGENT_ON_GOAL
             
 
@@ -66,6 +71,7 @@ class PressurePlateProblem(search.Problem):
         """ given a state and an action, returns the new state"""
         is_valid = False
         map, old_agent = state
+        # print(f"Agent is at: {old_agent}")
         new_map = [list(row) for row in map]
         dx, dy = directions[action]
         new_agent_pos = (old_agent[0] + dx, old_agent[1] + dy)
@@ -88,18 +94,18 @@ class PressurePlateProblem(search.Problem):
                 new_map[new_agent_pos[0]][new_agent_pos[1]] = AGENT
                 new_map[second_cell_pos[0]][second_cell_pos[1]] = new_cell_val
                 is_valid = True
-            elif second_cell_val in PRESSURE_PLATES and same_type(new_cell_val, second_cell_val):
+            elif second_cell_val in PRESSURE_PLATES and self.same_type(new_cell_val, second_cell_val):
                 new_map[old_agent[0]][old_agent[1]] = FLOOR
                 new_map[new_agent_pos[0]][new_agent_pos[1]] = AGENT
                 new_map[second_cell_pos[0]][second_cell_pos[1]] = second_cell_val + 10
                 # open door if needed
-                boolean is_pressure_plate_exist = False
+                is_locked_door_exist = False
                 for i in range(len(new_map)):
                     for j in range(len(new_map[i])):
-                        if new_map[i][j] in PRESSURE_PLATES and new_map[i][j] == second_cell_val:
-                            is_pressure_plate_exist = True
+                        if new_map[i][j] in LOCKED_DOORS and self.same_type(new_map[i][j], second_cell_val):
+                            is_locked_door_exist = True
                             break
-                if is_pressure_plate_exist:
+                if is_locked_door_exist:
                     for i in range(len(new_map)):
                         for j in range(len(new_map[i])):
                             if new_map[i][j] == second_cell_val + 20:
