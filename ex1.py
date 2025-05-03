@@ -31,7 +31,7 @@ class PressurePlateProblem(search.Problem):
 
     def __init__(self, initial):
 
-        
+        self.visited_states = set()
         self.map = initial
         goal = self.find_goal(initial)
         self.goal = goal
@@ -49,7 +49,11 @@ class PressurePlateProblem(search.Problem):
         successors = []
         for direction, delta in directions.items():
             is_valid, new_state = self.make_move(state, direction)
+            hashable_map = tuple(tuple(row) for row in new_state[0])
             if is_valid:
+                if hashable_map in self.visited_states:
+                    continue
+                self.visited_states.add(hashable_map)
                 successors.append((direction, new_state))
         return successors
 
@@ -64,7 +68,7 @@ class PressurePlateProblem(search.Problem):
         agent = node.state[1]
         goal = self.goal
         # Manhattan distance heuristic
-        return abs(agent[0] - goal[0]) + abs(agent[1] - goal[1])
+        return 3 * abs(agent[0] - goal[0]) + abs(agent[1] - goal[1]) + node.path_cost
 
     def make_move(self, state, action):
         """ given a state and an action, returns the new state"""

@@ -69,6 +69,10 @@ problem2 = (
     (99,99,99,99,99,99,99,99,99,99,99,99,99,99,99),)
 # solution2: len(solution) = 50
 
+def format_time(seconds):
+    minutes = seconds // 60  
+    seconds = seconds % 60   
+    return f"{minutes} minutes and {seconds} seconds"
 
 def main():
     start = time.time()
@@ -77,7 +81,7 @@ def main():
         for a in ['astar', 'gbfs']:
             solve_problems(p, a)
     end = time.time()
-    print('Submission took:', end-start, 'seconds.')
+    print('Submission took:', format_time(end-start), 'seconds.')
 
 
 if __name__ == '__main__':
