@@ -70,11 +70,20 @@ class PressurePlateProblem(search.Problem):
     def h(self, node):
         """ This is the heuristic. It gets a node (not a state)
         and returns a goal distance estimate"""
-        agent = node.state[0]
+        agent, key_blocks, pressure_plates, locked_doors, g = node.state  
         goal = self.goal
-        g = node.state[4]
+        lamda = 3
+        for key_block in key_blocks:
+            walls = 0
+            for direction, delta in directions.items():
+                new_pos = (key_block[0] + delta[0], key_block[1] + delta[1])
+                if self.map[new_pos[0]][new_pos[1]] == WALL:
+                    walls += 1
+            if walls >= 2:
+                lamda *= 3
+                break
         # Manhattan distance heuristic
-        return 3 * abs(agent[0] - goal[0]) + abs(agent[1] - goal[1]) + g
+        return lamda * abs(agent[0] - goal[0]) + abs(agent[1] - goal[1]) + g
 
     def canonical_state(self, state):
         agent, key_blocks, pressed_plates, locked_doors, g = state
