@@ -75,9 +75,9 @@ def run_simulation():
         (99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99),
     )
 
-    actions = ['L', 'U', 'U', 'R', 'U', 'L', 'L', 'D', 'L', 'D', 'L', 'L', 'L', 'L', 'L', 'D', 'L', 'U', 'U', 'U', 'D',
-               'D', 'D', 'L', 'L', 'L', 'U', 'U', 'U', 'U', 'U', 'R', 'R', 'R', 'U', 'U', 'L', 'L', 'L', 'U', 'U', 'U',
-               'U', 'U', 'R', 'R', 'D', 'D', 'R', 'D']
+    actions = ['U', 'L', 'U', 'R', 'U', 'L', 'L', 'D', 'L', 'D', 'L', 'L', 'L', 'L', 'D', 'L', 'U', 'U', 'U', 'R', 'U', 'L', 'D', 'L', 'D', 'D', 'D', 'L', 'L', 'L', 'U', 'U', 'U', 'U', 'U', 'R', 'R', 'R', 'U', 'U', 'L', 'L', 'L', 'U', 'U', 'U', 'U', 'U', 'R', 'R', 'D', 'D', 'D', 'R']
+
+
 
     pygame.init()
     screen = pygame.display.set_mode((len(initial_state[0]) * CELL_SIZE, len(initial_state) * CELL_SIZE))
@@ -86,7 +86,7 @@ def run_simulation():
     font = pygame.font.SysFont(None, 24)
 
     problem = create_pressure_plate_problem(initial_state)
-    state = (initial_state, problem.find_agent(initial_state))
+    state = (initial_state, problem.find_agent(initial_state), 0)
 
     for action in actions:
         for a, next_state in problem.successor(state):
@@ -96,7 +96,7 @@ def run_simulation():
 
         draw_board(screen, state[0], font)
         pygame.display.flip()
-        time.sleep(1)
+        time.sleep(0.8)
         clock.tick(60)
 
         for event in pygame.event.get():
