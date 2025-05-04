@@ -36,9 +36,9 @@ class PressurePlateProblem(search.Problem):
         agent = self.find_agent(initial)
         g = 0
         key_blocks = self.find_key_blocks(initial)
-        pressed_plates = frozenset()
+        pressure_plates = self.find_pressure_plates(initial)
         locked_doors = self.find_locked_doors(initial)
-        state = (agent, key_blocks, pressed_plates, locked_doors, g)
+        state = (agent, key_blocks, pressure_plates, locked_doors, g)
         """ Constructor only needs the initial state.
         Don't forget to set the goal or implement the goal test"""
         search.Problem.__init__(self, state, goal)
@@ -51,8 +51,9 @@ class PressurePlateProblem(search.Problem):
         for direction, delta in directions.items():
             is_valid, new_state = self.make_move(state, direction)
             if is_valid:
-                if new_state not in self.visited_states:
-                    self.visited_states.add(new_state)
+                state_key = self.canonical_state(new_state)
+                if state_key not in self.visited_states:
+                    self.visited_states.add(state_key)
                     successors.append((direction, new_state))
         return successors
 
@@ -61,6 +62,7 @@ class PressurePlateProblem(search.Problem):
         # print("goal_test")
         agent = state[0]
         goal = self.goal
+        
         if agent[0] == goal[0] and agent[1] == goal[1]:
             return True
         return False
@@ -74,6 +76,13 @@ class PressurePlateProblem(search.Problem):
         # Manhattan distance heuristic
         return 3 * abs(agent[0] - goal[0]) + abs(agent[1] - goal[1]) + g
 
+    def canonical_state(self, state):
+        agent, key_blocks, pressed_plates, locked_doors, g = state
+        key_blocks = tuple(sorted(key_blocks))
+        pressed_plates = tuple(sorted(pressed_plates))
+        locked_doors = tuple(sorted(locked_doors))
+        return (agent, key_blocks, pressed_plates, locked_doors)
+
     def find_key_blocks(self, map): 
         """ given a map, return all key blocks positions"""
         key_blocks = []
@@ -82,15 +91,6 @@ class PressurePlateProblem(search.Problem):
                 if cell in KEY_BLOCKS:
                     key_blocks.append((i, j, cell))
         return frozenset(key_blocks)
-    
-    def find_pressure_plates(self, map):
-        """Given a map, return all pressure plates positions."""
-        plates = []
-        for i, row in enumerate(map):
-            for j, cell in enumerate(row):
-                if cell in PRESSURE_PLATES:
-                    plates.append((i, j, cell))
-        return frozenset(plates)
 
     def find_locked_doors(self, map):
         """Given a map, return all locked doors positions."""
@@ -101,15 +101,25 @@ class PressurePlateProblem(search.Problem):
                     locked_doors.append((i, j, cell))
         return frozenset(locked_doors)
 
+    def find_pressure_plates(self, map):
+        """ given a map, return all pressure plates positions"""
+        pressure_plates = []
+        for i, row in enumerate(map):
+            for j, cell in enumerate(row):
+                if cell in PRESSURE_PLATES:
+                    pressure_plates.append((i, j, cell))
+        return frozenset(pressure_plates)
+
     def make_move(self, state, action):
         """ given a state and an action, returns the new state"""
         is_valid = False
-        old_agent, key_blocks, locked_doors, pressure_plates, g = state   
+        old_agent, key_blocks, pressure_plates, locked_doors, g = state   
         dx, dy = directions[action]
         new_agent_pos = (old_agent[0] + dx, old_agent[1] + dy)
         new_cell_val = ()
         for pos in key_blocks:
             if pos[0] == new_agent_pos[0] and pos[1] == new_agent_pos[1]:
+                
                 second_cell_pos = (pos[0] + dx, pos[1] + dy)
                 for position in key_blocks:
                     if position[0] == second_cell_pos[0] and position[1] == second_cell_pos[1]:
@@ -124,19 +134,19 @@ class PressurePlateProblem(search.Problem):
                         else:
                             new_cell_val = position[2] + 10
                             new_position = (second_cell_pos[0], second_cell_pos[1], new_cell_val)
-                            updated_pressure_plates = frozenset(pressure_plates | {new_position})
+                            updated_pressure_plates = frozenset(pressure_plates - {position})
                             updated_key_blocks = frozenset(key_blocks - {pos})
+                            updated_locked_doors = locked_doors
                             for door in locked_doors:
-                                if door[2] == new_cell_val + 20:
+                                if door[2] == position[2] + 20:
                                     updated_locked_doors = frozenset(locked_doors - {door})
-                                    break
+                                    
                             return True, (new_agent_pos, updated_key_blocks, updated_pressure_plates, updated_locked_doors, g + 1)
                 new_cell_val = self.map[second_cell_pos[0]][second_cell_pos[1]]
-                if new_cell_val == WALL:
+                if new_cell_val == WALL or new_cell_val == GOAL or new_cell_val in PRESSURE_PLATES:
                     return False, state
                 else:
-                    updated_key_blocks = frozenset(key_blocks - {pos})
-                    updated_key_blocks = frozenset(key_blocks | (second_cell_pos[0], second_cell_pos[1], pos[2]))
+                    updated_key_blocks = frozenset((key_blocks - {pos}) | {(second_cell_pos[0], second_cell_pos[1], pos[2])})
                     return True, (new_agent_pos, updated_key_blocks, pressure_plates, locked_doors, g + 1)
         for pos in locked_doors:
             if pos[0] == new_agent_pos[0] and pos[1] == new_agent_pos[1]:
