@@ -155,7 +155,7 @@ class PressurePlateProblem(search.Problem):
             if pos[0] == new_agent_pos[0] and pos[1] == new_agent_pos[1]:
                 return False, state
         new_cell_val = self.map[new_agent_pos[0]][new_agent_pos[1]]
-        if new_cell_val == WALL:
+        if new_cell_val == WALL or new_cell_val in PRESSURE_PLATES:
             return False, state
         else:
             return True, (new_agent_pos, key_blocks, pressure_plates, locked_doors, g + 1)
