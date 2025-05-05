@@ -1,3 +1,7 @@
+# I used AI tools including ChatGPT, Gemini, and GitHub Copilot during the development of this code.
+# I also discussed ideas and received input from peers in the course WhatsApp group.
+
+
 import ex1_check
 import search
 import utils
