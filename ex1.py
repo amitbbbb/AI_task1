@@ -115,7 +115,7 @@ class PressurePlateProblem(search.Problem):
         manhattan_distance = abs(agent[0] - goal[0]) + abs(agent[1] - goal[1])
         
         # define h
-        h = manhattan_distance + 2 * key_plate_distances + corner_keys * 5 + locked_doors_amount + g
+        h = 2 * manhattan_distance + 1.8 * key_plate_distances + corner_keys * 5 + locked_doors_amount  + 1.5 * g
         
         # return h
         return 10 * h
@@ -181,9 +181,15 @@ class PressurePlateProblem(search.Problem):
                             updated_pressure_plates = frozenset(pressure_plates - {position})
                             updated_key_blocks = frozenset(key_blocks - {pos})
                             updated_locked_doors = locked_doors
-                            for door in locked_doors:
-                                if door[2] == position[2] + 20:
-                                    updated_locked_doors = frozenset(locked_doors - {door})
+                            is_remaining_locks = False
+                            for plate in updated_pressure_plates:
+                                if self.same_type(plate[2], new_cell_val):
+                                    is_remaining_locks = True
+                                    break
+                            if not is_remaining_locks:
+                                for door in locked_doors:
+                                    if door[2] == position[2] + 20:
+                                        updated_locked_doors = frozenset(locked_doors - {door})
                                     
                             return True, (new_agent_pos, updated_key_blocks, updated_pressure_plates, updated_locked_doors, g + 1)
                 new_cell_val = self.map[second_cell_pos[0]][second_cell_pos[1]]
