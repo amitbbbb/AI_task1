@@ -72,7 +72,25 @@ class PressurePlateProblem(search.Problem):
         and returns a goal distance estimate"""
         agent, key_blocks, pressure_plates, locked_doors, g = node.state  
         goal = self.goal
-        lamda = 3
+        lamda = 1
+        # lamda += len(locked_doors)
+        
+        door_key_distances = 0
+        for door in locked_doors:
+            door_x, door_y, door_type = door
+            min_dist = float('inf')
+            for key in key_blocks:
+                key_x, key_y, key_type = key
+                if key_type == door_type:
+                    dist = abs(door_x - key_x) + abs(door_y - key_y)
+                    if dist < min_dist:
+                        min_dist = dist
+            
+            if min_dist == float('inf'):
+                door_key_distances += 50  
+            else:
+                door_key_distances += min_dist
+        
         for key_block in key_blocks:
             walls = 0
             for direction, delta in directions.items():
@@ -83,7 +101,7 @@ class PressurePlateProblem(search.Problem):
                 lamda *= 3
                 break
         # Manhattan distance heuristic
-        return lamda * abs(agent[0] - goal[0]) + abs(agent[1] - goal[1]) + g
+        return lamda * abs(agent[0] - goal[0]) + abs(agent[1] - goal[1]) + g + door_key_distances
 
     def canonical_state(self, state):
         agent, key_blocks, pressed_plates, locked_doors, g = state
