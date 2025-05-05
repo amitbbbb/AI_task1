@@ -93,8 +93,6 @@ class PressurePlateProblem(search.Problem):
                         min_dist = dist
 
             if min_dist == float('inf'):
-                print("key not found", key)
-                print("pressure plates",pressure_plates)
                 key_plate_distances += 30
             else:
                 key_plate_distances += min_dist
@@ -117,7 +115,7 @@ class PressurePlateProblem(search.Problem):
         manhattan_distance = abs(agent[0] - goal[0]) + abs(agent[1] - goal[1])
         
         # define h
-        h = manhattan_distance +  2 * key_plate_distances + corner_keys * 5 + locked_doors_amount + g
+        h = manhattan_distance + 2 * key_plate_distances + corner_keys * 5 + locked_doors_amount + g
         
         # return h
         return 10 * h
