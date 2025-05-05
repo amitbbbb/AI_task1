@@ -70,38 +70,57 @@ class PressurePlateProblem(search.Problem):
     def h(self, node):
         """ This is the heuristic. It gets a node (not a state)
         and returns a goal distance estimate"""
+        # open the node and get the state
         agent, key_blocks, pressure_plates, locked_doors, g = node.state  
         goal = self.goal
-        lamda = 1
-        # lamda += len(locked_doors)
         
-        door_key_distances = 0
-        for door in locked_doors:
-            door_x, door_y, door_type = door
+        # define factor of lamda
+        # lamda = 1
+        
+        # punish locked doors
+        locked_doors_amount = len(locked_doors)
+        
+        # punish diatance to pressure plates
+        key_plate_distances = 0
+        for key in key_blocks:
+            key_x, key_y, key_type = key
             min_dist = float('inf')
-            for key in key_blocks:
-                key_x, key_y, key_type = key
-                if key_type == door_type:
-                    dist = abs(door_x - key_x) + abs(door_y - key_y)
+            for plate in pressure_plates:
+                plate_x, plate_y, plate_type = plate
+                if self.same_type(key_type, plate_type):
+                    dist = abs(plate_x - key_x) + abs(plate_y - key_y)
                     if dist < min_dist:
                         min_dist = dist
-            
+
             if min_dist == float('inf'):
-                door_key_distances += 50  
+                print("key not found", key)
+                print("pressure plates",pressure_plates)
+                key_plate_distances += 30
             else:
-                door_key_distances += min_dist
-        
+                key_plate_distances += min_dist
+
+        # punish keys in corners
+        corner_keys = 0
         for key_block in key_blocks:
             walls = 0
             for direction, delta in directions.items():
                 new_pos = (key_block[0] + delta[0], key_block[1] + delta[1])
                 if self.map[new_pos[0]][new_pos[1]] == WALL:
                     walls += 1
-            if walls >= 2:
-                lamda *= 3
+                if walls >= 2:
+                    corner_keys += 1
+                    break
+            if corner_keys:
                 break
-        # Manhattan distance heuristic
-        return lamda * abs(agent[0] - goal[0]) + abs(agent[1] - goal[1]) + g + door_key_distances
+        
+        # Manhattan distance 
+        manhattan_distance = abs(agent[0] - goal[0]) + abs(agent[1] - goal[1])
+        
+        # define h
+        h = manhattan_distance +  2 * key_plate_distances + corner_keys * 5 + locked_doors_amount + g
+        
+        # return h
+        return 10 * h
 
     def canonical_state(self, state):
         agent, key_blocks, pressed_plates, locked_doors, g = state
