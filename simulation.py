@@ -23,12 +23,14 @@ PRESSURE_PLATES = list(range(20, 30))
 PRESSED_PLATES = list(range(30, 40))
 LOCKED_DOORS = list(range(40, 50))
 
+
 def draw_board(screen, grid, font):
     for row in range(len(grid)):
         for col in range(len(grid[0])):
             val = grid[row][col]
 
-            rect = pygame.Rect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE)
+            rect = pygame.Rect(col * CELL_SIZE, row *
+                               CELL_SIZE, CELL_SIZE, CELL_SIZE)
 
             if val == WALL:
                 color = BLACK
@@ -56,31 +58,23 @@ def draw_board(screen, grid, font):
             text_rect = text.get_rect(center=rect.center)
             screen.blit(text, text_rect)
 
+
 def run_simulation():
     initial_state = (
-        (99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99),
-        (99, 98, 98, 98, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99),
-        (99, 98, 99, 98, 99, 99, 99, 99, 99, 99, 98, 98, 99, 99, 99),
-        (99, 98, 99, 98, 98, 99, 25, 98, 99, 99, 98, 98, 98, 99, 99),
-        (99, 98, 99, 98, 2, 45, 98, 98, 98, 98, 98, 98, 98, 99, 99),
-        (99, 98, 99, 99, 99, 99, 98, 98, 99, 99, 99, 42, 99, 99, 99),
-        (99, 98, 98, 98, 98, 99, 99, 99, 99, 99, 22, 98, 98, 99, 99),
-        (99, 99, 99, 99, 98, 99, 98, 98, 98, 99, 98, 98, 98, 99, 99),
-        (99, 98, 98, 98, 98, 99, 12, 98, 98, 99, 98, 98, 98, 99, 99),
-        (99, 98, 99, 99, 23, 98, 98, 15, 98, 99, 99, 41, 99, 99, 99),
-        (99, 98, 99, 99, 98, 98, 98, 98, 98, 99, 20, 98, 98, 98, 99),
-        (99, 98, 99, 99, 98, 98, 99, 98, 98, 99, 98, 98, 10, 98, 99),
-        (99, 98, 99, 99, 98, 13, 98, 98, 98, 40, 11, 98, 98, 98, 99),
-        (99, 98, 43, 98, 98, 98, 98, 98, 98, 99, 21, 98, 98, 1, 99),
-        (99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99),
+        (99, 99, 99, 99, 99, 99),
+        (99, 2, 40, 98, 98, 99),
+        (99, 99, 99, 10, 98, 99),
+        (99, 98, 98, 98, 98, 99),
+        (99, 20, 98, 98, 1, 99),
+        (99, 99, 99, 99, 99, 99),
+
     )
 
-    actions = ['U', 'L', 'U', 'R', 'U', 'L', 'L', 'D', 'L', 'D', 'L', 'L', 'L', 'L', 'D', 'L', 'U', 'U', 'U', 'R', 'U', 'L', 'D', 'L', 'D', 'D', 'D', 'L', 'L', 'L', 'U', 'U', 'U', 'U', 'U', 'R', 'R', 'R', 'U', 'U', 'L', 'L', 'L', 'U', 'U', 'U', 'U', 'U', 'R', 'R', 'D', 'D', 'D', 'R']
-
-
-
+    # actions = ['U', 'L', 'U', 'R', 'U', 'L', 'L', 'D', 'L', 'D', 'L', 'L', 'L', 'L', 'D', 'L', 'U', 'U', 'U', 'R', 'U', 'L', 'D', 'L', 'D', 'D', 'D', 'L', 'L', 'L', 'U', 'U', 'U', 'U', 'U', 'R', 'R', 'R', 'U', 'U', 'L', 'L', 'L', 'U', 'U', 'U', 'U', 'U', 'R', 'R', 'D', 'D', 'D', 'R']
+    actions = ['U', 'U', 'U', 'L', 'D', 'D', 'R', 'D', 'L', 'L', 'U', 'R', 'U', 'U', 'L', 'L']
     pygame.init()
-    screen = pygame.display.set_mode((len(initial_state[0]) * CELL_SIZE, len(initial_state) * CELL_SIZE))
+    screen = pygame.display.set_mode(
+        (len(initial_state[0]) * CELL_SIZE, len(initial_state) * CELL_SIZE))
     pygame.display.set_caption("Pressure Plate Simulation")
     clock = pygame.time.Clock()
     font = pygame.font.SysFont(None, 24)
@@ -105,6 +99,7 @@ def run_simulation():
                 return
 
     pygame.quit()
+
 
 if __name__ == "__main__":
     run_simulation()
